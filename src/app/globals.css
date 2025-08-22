@@ -26,10 +26,3 @@ body {
 }
 
 
-@theme {
-  --font-zentry: var(--font-zentry);
-}
-
-.font-zentry {
-  font-family: var(--font-zentry), sans-serif;
-}
