@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { Orbitron } from "next/font/google";
 import { gsap } from "gsap";
 
+
 const orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "700"] });
 
 const Hero = () => {
