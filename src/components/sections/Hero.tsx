@@ -1,34 +1,89 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import { Orbitron } from "next/font/google";
+import { gsap } from "gsap";
 
 const orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "700"] });
 
 const Hero = () => {
   const cornerRefs = useRef<Array<HTMLDivElement | null>>([]);
   const lineRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const developerRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const cornerItems = ["Eat.", "Sleep.", "Code.", "Repeat."];
 
   useEffect(() => {
-    // Animate lines first
-    lineRefs.current.forEach((line, i) => {
-      if (line) {
-        setTimeout(() => {
-          line.style.transform = "scaleX(1)";
-        }, i * 200);
+    // Register GSAP plugins if needed
+    // gsap.registerPlugin(ScrollTrigger);
+
+    // Create a master timeline for coordinated animations
+    const tl = gsap.timeline();
+
+    // Animate DEVELOPER text with staggered animation
+    tl.to(developerRefs.current, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: "back.out(1.7)",
+      delay: 0.3
+    });
+
+    // Animate lines with a cool draw effect
+    tl.to(lineRefs.current, {
+      scaleX: 1,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power2.out"
+    }, "-=0.4");
+
+    // Animate corner text with a bounce effect
+    tl.to(cornerRefs.current, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.7,
+      stagger: 0.15,
+      ease: "elastic.out(1, 0.75)"
+    }, "-=0.6");
+
+    // Add continuous subtle animations
+    developerRefs.current.forEach((letter, i) => {
+      if (letter) {
+        // Add hover animation
+        letter.addEventListener('mouseenter', () => {
+          gsap.to(letter, {
+            y: -10,
+            color: i % 2 === 0 ? '#FFD700' : '#00FFFF',
+            duration: 0.3
+          });
+        });
+        
+        letter.addEventListener('mouseleave', () => {
+          gsap.to(letter, {
+            y: 0,
+            color: i % 2 === 0 ? 'white' : 'transparent',
+            duration: 0.5
+          });
+        });
       }
     });
 
-    // Then animate text
-    cornerRefs.current.forEach((corner, i) => {
-      if (corner) {
-        setTimeout(() => {
-          corner.style.opacity = "1";
-          corner.style.transform = "translateY(0) scale(1)";
-        }, i * 200 + 300);
-      }
+    // Add a subtle pulse animation to the background
+    gsap.to(containerRef.current, {
+      backgroundPosition: '100% 50%',
+      duration: 15,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
     });
+
+    // Clean up
+    return () => {
+      // Kill all animations on unmount
+      tl.kill();
+    };
   }, []);
 
   const getCornerPosition = (index: number) => {
@@ -49,26 +104,48 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className="relative w-full h-screen flex items-center justify-center overflow-hidden text-white"
+      ref={containerRef}
+      className="relative w-full h-screen flex items-center justify-center overflow-hidden text-white cursor-default"
       style={{
-        background: "linear-gradient(to right, #1CB5E0, #000046)",
+        background: "linear-gradient(45deg, #1CB5E0 0%, #000046 100%)",
+        backgroundSize: "200% 200%"
       }}
     >
+      {/* Animated background elements */}
+      <div className="absolute inset-0 z-0 opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full mix-blend-overlay filter blur-xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-900 rounded-full mix-blend-overlay filter blur-xl animate-pulse delay-1000"></div>
+      </div>
+
+      {/* Grid pattern overlay */}
+      <div className="absolute inset-0 z-0 opacity-10 bg-grid-pattern"></div>
+
       {/* Responsive DEVELOPER text */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="flex flex-wrap justify-center gap-2 px-4">
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <div className="flex flex-wrap justify-center gap-1 md:gap-2 px-4">
           {"DEVELOPER".split("").map((char, index) => {
             const isEven = index % 2 === 0;
             return (
               <span
                 key={index}
+                ref={(el) => (developerRefs.current[index] = el)}
                 className={`${orbitron.className} ${
-                  isEven ? "text-white opacity-50" : "text-transparent"
-                } text-[9.5vw] leading-none tracking-[0.3vw]`}
+                  isEven ? "text-white" : "text-transparent"
+                } text-[8vw] md:text-[9.5vw] leading-none tracking-[0.3vw] transition-all duration-300 cursor-pointer`}
                 style={
                   isEven
-                    ? {}
-                    : { WebkitTextStroke: "1px white", opacity: 0.4 }
+                    ? { 
+                        opacity: 0, 
+                        transform: "scale(0.8)",
+                        WebkitTextStroke: "none",
+                        textShadow: "0 0 10px rgba(255,255,255,0.5)"
+                      }
+                    : { 
+                        opacity: 0,
+                        transform: "scale(0.8)",
+                        WebkitTextStroke: "1px white",
+                        textShadow: "0 0 15px rgba(0,255,255,0.7)"
+                      }
                 }
               >
                 {char}
@@ -87,12 +164,12 @@ const Hero = () => {
             key={index}
             className={`absolute ${getCornerPosition(index)} flex ${
               index % 2 === 0 ? 'flex-col items-start' : 'flex-col items-end'
-            } gap-2`}
+            } gap-2 z-10`}
           >
             {/* Animated line */}
             <div
               ref={(el) => (lineRefs.current[index] = el)}
-              className={`h-[3px] w-24 bg-white transition-transform duration-500 ease-out ${
+              className={`h-[2px] md:h-[3px] w-16 md:w-24 bg-white/80 transition-transform duration-500 ease-out ${
                 lineDirection === 'left' ? 'origin-left' : 'origin-right'
               }`}
               style={{ transform: 'scaleX(0)' }}
@@ -103,22 +180,33 @@ const Hero = () => {
               ref={(el) => (cornerRefs.current[index] = el)}
               className={`${orbitron.className} flex ${
                 index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
-              } items-end gap-2 transition-all duration-700 ease-out`}
-              style={{ 
-                opacity: 0, 
-                transform: 'translateY(20px) scale(0.95)' 
-              }}
+              } items-end gap-2 transition-all duration-700 ease-out opacity-0 translate-y-5 scale-95`}
             >
-              <span className="text-xl opacity-70 mb-2">
+              <span className="text-sm md:text-xl opacity-70 mb-1 md:mb-2">
                 0{index + 1}
               </span>
-              <span className="text-2xl md:text-5xl lg:text-6xl font-bold">
+              <span className="text-xl md:text-5xl lg:text-6xl font-bold hover:text-cyan-300 transition-colors duration-300">
                 {word}
               </span>
             </div>
           </div>
         );
       })}
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .bg-grid-pattern {
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+          background-size: 40px 40px;
+        }
+      `}</style>
     </section>
   );
 };
