@@ -11,39 +11,12 @@ const Hero = () => {
   const lineRefs = useRef<Array<HTMLDivElement | null>>([]);
   const developerRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null); // New ref for the image
 
   const cornerItems = ["Eat.", "Sleep.", "Code.", "Repeat."];
 
   useEffect(() => {
     // Create a master timeline for coordinated animations
     const tl = gsap.timeline();
-
-    // First animate the image in the center
-    tl.fromTo(imageRef.current, 
-      {
-        opacity: 0,
-        scale: 0.8,
-        y: 50,
-        rotation: -5
-      },
-      {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        rotation: 0,
-        duration: 1,
-        ease: "back.out(1.7)"
-      }
-    );
-
-    // Then animate the image moving up slightly
-    tl.to(imageRef.current, {
-      y: -20,
-      scale: 0.9,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "+=0.3");
 
     // Animate DEVELOPER text with staggered animation
     tl.to(developerRefs.current, {
@@ -103,16 +76,6 @@ const Hero = () => {
       ease: "sine.inOut"
     });
 
-    // Add continuous floating animation to the image
-    gsap.to(imageRef.current, {
-      y: "+=10",
-      rotation: "+=1",
-      duration: 3,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-
     // Clean up
     return () => {
       // Kill all animations on unmount
@@ -122,10 +85,10 @@ const Hero = () => {
 
   const getCornerPosition = (index: number) => {
     const positions = [
-      "top-[25%] left-[10%]", // Top-left
-      "top-[25%] right-[10%]", // Top-right
-      "bottom-[25%] left-[10%]", // Bottom-left
-      "bottom-[25%] right-[10%]", // Bottom-right
+      "top-[10%] sm:top-[15%] left-[5%] sm:left-[10%]", // Top-left
+      "top-[10%] sm:top-[15%] right-[5%] sm:right-[10%]", // Top-right
+      "bottom-[10%] sm:bottom-[15%] left-[5%] sm:left-[10%]", // Bottom-left
+      "bottom-[10%] sm:bottom-[15%] right-[5%] sm:right-[10%]", // Bottom-right
     ];
     return positions[index];
   };
@@ -147,27 +110,12 @@ const Hero = () => {
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 z-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-cyan-400 rounded-full mix-blend-overlay filter blur-xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-900 rounded-full mix-blend-overlay filter blur-xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 sm:w-64 sm:h-64 bg-cyan-400 rounded-full mix-blend-overlay filter blur-xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/3 w-48 h-48 sm:w-96 sm:h-96 bg-blue-900 rounded-full mix-blend-overlay filter blur-xl animate-pulse delay-1000"></div>
       </div>
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 z-0 opacity-10 bg-grid-pattern"></div>
-
-      {/* Background removed image */}
-      <div className="absolute inset-0 flex items-center justify-center z-5">
-        <Image
-          ref={imageRef}
-          src="/image2.png" // Update with your image path
-          alt="Profile"
-          width={500}
-          height={500}
-          className="w-80 h-80 md:w-64 md:h-64 object-contain opacity-0"
-          style={{
-            filter: "drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))"
-          }}
-        />
-      </div>
 
       {/* Responsive DEVELOPER text */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -180,7 +128,7 @@ const Hero = () => {
                 ref={(el) => (developerRefs.current[index] = el)}
                 className={`${orbitron.className} ${
                   isEven ? "text-white" : "text-transparent"
-                } text-[8vw] md:text-[9.5vw] leading-none tracking-[0.3vw] transition-all duration-300 cursor-pointer`}
+                } text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[9.5vw] leading-none tracking-[0.3vw] transition-all duration-300 cursor-pointer`}
                 style={
                   isEven
                     ? { 
@@ -218,7 +166,7 @@ const Hero = () => {
             {/* Animated line */}
             <div
               ref={(el) => (lineRefs.current[index] = el)}
-              className={`h-[2px] md:h-[3px] w-16 md:w-24 bg-white/80 transition-transform duration-500 ease-out ${
+              className={`h-[2px] w-12 sm:w-16 md:w-20 lg:w-24 bg-white/80 transition-transform duration-500 ease-out ${
                 lineDirection === 'left' ? 'origin-left' : 'origin-right'
               }`}
               style={{ transform: 'scaleX(0)' }}
@@ -231,10 +179,10 @@ const Hero = () => {
                 index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
               } items-end gap-2 transition-all duration-700 ease-out opacity-0 translate-y-5 scale-95`}
             >
-              <span className="text-sm md:text-xl opacity-70 mb-1 md:mb-2">
+              <span className="text-xs sm:text-sm md:text-base lg:text-xl opacity-70 mb-1">
                 0{index + 1}
               </span>
-              <span className="text-xl md:text-5xl lg:text-6xl font-bold hover:text-cyan-300 transition-colors duration-300">
+              <span className="text-lg sm:text-xl md:text-3xl lg:text-4xl xl:text-5xl font-bold hover:text-cyan-300 transition-colors duration-300">
                 {word}
               </span>
             </div>
