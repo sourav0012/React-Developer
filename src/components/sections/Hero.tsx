@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import { Orbitron } from "next/font/google";
 import { gsap } from "gsap";
-
+import Image from "next/image";
 
 const orbitron = Orbitron({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -11,15 +11,39 @@ const Hero = () => {
   const lineRefs = useRef<Array<HTMLDivElement | null>>([]);
   const developerRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null); // New ref for the image
 
   const cornerItems = ["Eat.", "Sleep.", "Code.", "Repeat."];
 
   useEffect(() => {
-    // Register GSAP plugins if needed
-    // gsap.registerPlugin(ScrollTrigger);
-
     // Create a master timeline for coordinated animations
     const tl = gsap.timeline();
+
+    // First animate the image in the center
+    tl.fromTo(imageRef.current, 
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 50,
+        rotation: -5
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 1,
+        ease: "back.out(1.7)"
+      }
+    );
+
+    // Then animate the image moving up slightly
+    tl.to(imageRef.current, {
+      y: -20,
+      scale: 0.9,
+      duration: 0.8,
+      ease: "power2.out"
+    }, "+=0.3");
 
     // Animate DEVELOPER text with staggered animation
     tl.to(developerRefs.current, {
@@ -27,9 +51,8 @@ const Hero = () => {
       scale: 1,
       duration: 0.6,
       stagger: 0.08,
-      ease: "back.out(1.7)",
-      delay: 0.3
-    });
+      ease: "back.out(1.7)"
+    }, "-=0.4");
 
     // Animate lines with a cool draw effect
     tl.to(lineRefs.current, {
@@ -80,6 +103,16 @@ const Hero = () => {
       ease: "sine.inOut"
     });
 
+    // Add continuous floating animation to the image
+    gsap.to(imageRef.current, {
+      y: "+=10",
+      rotation: "+=1",
+      duration: 3,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+
     // Clean up
     return () => {
       // Kill all animations on unmount
@@ -120,6 +153,21 @@ const Hero = () => {
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 z-0 opacity-10 bg-grid-pattern"></div>
+
+      {/* Background removed image */}
+      <div className="absolute inset-0 flex items-center justify-center z-5">
+        <Image
+          ref={imageRef}
+          src="/image2.png" // Update with your image path
+          alt="Profile"
+          width={500}
+          height={500}
+          className="w-80 h-80 md:w-64 md:h-64 object-contain opacity-0"
+          style={{
+            filter: "drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))"
+          }}
+        />
+      </div>
 
       {/* Responsive DEVELOPER text */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
